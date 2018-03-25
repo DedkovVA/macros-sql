@@ -47,6 +47,8 @@ object Macros {
         ) => predicateToString(tree)
         case (Select(newTree, TermName("$bar$bar")), List(treeInList)) =>
           whereSelectorToString(newTree) + " OR " + whereSelectorToString(treeInList)
+        case (Select(newTree, TermName("$amp$amp")), List(treeInList@Apply(Select(_), List(Apply(_))))) =>
+          whereSelectorToString(newTree) + " AND (" + whereSelectorToString(treeInList) + ")"
         case (Select(newTree, TermName("$amp$amp")), List(treeInList)) =>
           whereSelectorToString(newTree) + " AND " + whereSelectorToString(treeInList)
       }
@@ -66,6 +68,7 @@ object Macros {
         case "eq" :: m => "=" + termsToString(m)
         case "greater" :: m => ">" + termsToString(m)
         case "less" :: m => "<" + termsToString(m)
+        case "bang" :: m => "!" + termsToString(m)
         case _ => ""
       }
     }
@@ -215,7 +218,47 @@ object Macros {
       )
     )*/
 
-    //    c.Expr(q"${showRaw(tpt)}")
+/*    Function(
+      List(ValDef(Modifiers(PARAM), TermName("t"), TypeTree().setOriginal(Ident(com.github.dedkovva.TABLE_1)), EmptyTree)),
+      Apply(
+        Select(Ident(com.github.dedkovva.SqlSelect), TermName("apply")),
+        List(
+          Apply(
+            Select(Ident(com.github.dedkovva.Columns), TermName("apply")),
+            List(Select(Ident(TermName("t")), TermName("COLUMN_A")), Select(Ident(TermName("t")), TermName("COLUMN_B")))
+          ),
+          Apply(
+            Select(
+              Apply(
+                Select(Apply(Select(Select(Ident(TermName("t")), TermName("COLUMN_A")), TermName("$eq$eq")), List(Literal(Constant("col-a-v")))), TermName("$bar$bar")),
+                List(Apply(Select(Select(Ident(TermName("t")), TermName("COLUMN_B")), TermName("$eq$eq")), List(Literal(Constant("col-b-v0")))))
+              ),
+              TermName("$bar$bar")
+            ),
+            List(
+              Apply(
+                Select(
+                  Apply(
+                    Select(Apply(Select(Select(Ident(TermName("t")), TermName("COLUMN_B")), TermName("$eq$eq")), List(Literal(Constant("col-b-v1")))), TermName("$amp$amp")),
+                    List(Apply(Select(Select(Ident(TermName("t")), TermName("COLUMN_C")), TermName("$greater")), List(Literal(Constant(0)))))
+                  ),
+                  TermName("$amp$amp")
+                ),
+                List(
+                  Apply(
+                    Select(Apply(Select(Select(Ident(TermName("t")), TermName("COLUMN_C")), TermName("$less$eq")), List(Literal(Constant(10)))), TermName("$bar$bar")),
+                    List(Apply(Select(Select(Ident(TermName("t")), TermName("COLUMN_A")), TermName("$eq$eq")), List(Literal(Constant("col-a-v1")))))
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )*/
+
+
+//      c.Expr(q"${showRaw(tpt)}")
 //    c.Expr(q"${showRaw(f)}")
 //    c.Expr(q"$tableName")
     c.Expr(q"$sql")
