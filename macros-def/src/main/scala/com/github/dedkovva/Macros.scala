@@ -33,10 +33,15 @@ object Macros {
 
     def sqlSelectFromTemplate(columns: String) = s"SELECT $columns FROM $tableName"
 
-    val columns = columnsSelector.map(colSelector => {
-      val Select(Ident(TermName(_)), TermName(columnName)) = colSelector
-      columnName
-    })
+    def valueToString(value: Any): String = {
+      if (value.isInstanceOf[String]) s"'$value'"
+      else value.toString
+    }
+
+    val columns = columnsSelector.map {
+      case Select(Ident(TermName(_)), TermName(columnName)) => columnName
+      case Literal(Constant(value)) => valueToString(value)
+    }
 
     def whereSelectorToString(tree: c.universe.Tree): String = {
       val Apply(select, list) = tree
@@ -71,11 +76,6 @@ object Macros {
         case "bang" :: m => "!" + termsToString(m)
         case _ => ""
       }
-    }
-
-    def valueToString(value: Any): String = {
-      if (value.isInstanceOf[String]) s"'$value'"
-      else value.toString
     }
 
     val selectFrom = sqlSelectFromTemplate(columns.mkString(", "))
@@ -257,8 +257,19 @@ object Macros {
       )
     )*/
 
+/*    Function(
+      List(ValDef(Modifiers(PARAM), TermName("t"), TypeTree().setOriginal(Ident(com.github.dedkovva.TABLE_1)), EmptyTree)),
+      Apply(
+        Select(Ident(com.github.dedkovva.SqlSelect), TermName("apply")),
+        List(
+          Apply(Select(Ident(com.github.dedkovva.Columns), TermName("apply")), List(Literal(Constant(1)))),
+          Literal(Constant(true))
+        )
+      )
+    )*/
 
-//      c.Expr(q"${showRaw(tpt)}")
+
+    //      c.Expr(q"${showRaw(tpt)}")
 //    c.Expr(q"${showRaw(f)}")
 //    c.Expr(q"$tableName")
     c.Expr(q"$sql")
