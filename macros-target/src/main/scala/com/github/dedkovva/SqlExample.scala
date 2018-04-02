@@ -38,7 +38,11 @@ object SqlExample extends App {
     Columns(1, t.COLUMN_A, 2, t.COLUMN_B, t.COLUMN_C, 3, "x"),
     t.COLUMN_A == "col-a-v" && t.COLUMN_C == 1)))
 
-/*  println(Macros.select((t: TABLE_1) => SqlSelect(
+  println(Macros.select((t: TABLE_1) => SqlSelect(
     Columns(1),
-    1 == 1)))*/
+    1 == 1)))
+
+  println(Macros.select((t: TABLE_1) => SqlSelect(
+    Columns(1, 2, "x"),
+    1 == 2)))
 }
